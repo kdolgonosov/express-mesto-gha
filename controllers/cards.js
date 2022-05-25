@@ -4,8 +4,8 @@ const DefaultErrorCode = 500;
 const DefaultErrorMessage = 'Ошибка сервера';
 const ValidationErrorCode = 400;
 const ValidationErrorMessage = 'Некорректные данные';
-const CastErrorCode = 404;
-const CastErrorMessage = 'Карточка не найдена';
+const NotFoundErrorCode = 404;
+const NotFoundErrorMessage = 'Пользователь не найден';
 
 module.exports.getCards = (req, res) => {
   Card.find({})
@@ -20,14 +20,16 @@ module.exports.getCards = (req, res) => {
 
 module.exports.deleteCardById = (req, res) => {
   Card.findByIdAndRemove(req.params.id)
-    .then((card) => res.status(200).send({ data: card }))
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        return res.status(CastErrorCode).send({ message: CastErrorMessage });
+    .then((card) => {
+      if (!card) {
+        return res
+          .status(NotFoundErrorCode)
+          .send({ message: NotFoundErrorMessage });
       }
-      return res
-        .status(DefaultErrorCode)
-        .send({ message: DefaultErrorMessage });
+      return res.status(200).send({ data: card });
+    })
+    .catch(() => {
+      res.status(DefaultErrorCode).send({ message: DefaultErrorMessage });
     });
 };
 
@@ -60,15 +62,19 @@ module.exports.likeCard = (req, res) => {
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
     { new: true },
   )
-    .then((card) => res.status(200).send({ data: card }))
+    .then((card) => {
+      if (!card) {
+        return res
+          .status(NotFoundErrorCode)
+          .send({ message: NotFoundErrorMessage });
+      }
+      return res.status(200).send({ data: card });
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res
           .status(ValidationErrorCode)
           .send({ message: ValidationErrorMessage });
-      }
-      if (err.name === 'CastError') {
-        return res.status(CastErrorCode).send({ message: CastErrorMessage });
       }
       return res
         .status(DefaultErrorCode)
@@ -82,7 +88,14 @@ module.exports.dislikeCard = (req, res) => {
     { $pull: { likes: req.user._id } }, // убрать _id из массива
     { new: true },
   )
-    .then((card) => res.status(200).send({ data: card }))
+    .then((card) => {
+      if (!card) {
+        return res
+          .status(NotFoundErrorCode)
+          .send({ message: NotFoundErrorMessage });
+      }
+      return res.status(200).send({ data: card });
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res
@@ -90,7 +103,9 @@ module.exports.dislikeCard = (req, res) => {
           .send({ message: ValidationErrorMessage });
       }
       if (err.name === 'CastError') {
-        return res.status(CastErrorCode).send({ message: CastErrorMessage });
+        return res
+          .status(NotFoundErrorCode)
+          .send({ message: NotFoundErrorMessage });
       }
       return res
         .status(DefaultErrorCode)
