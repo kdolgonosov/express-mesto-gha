@@ -63,7 +63,7 @@ module.exports.createCard = (req, res) => {
 module.exports.likeCard = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
-    { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
+    { $addToSet: { likes: req.user._id } },
     { new: true, runValidators: true },
   )
     .then((card) => {
@@ -72,7 +72,14 @@ module.exports.likeCard = (req, res) => {
           .status(NotFoundErrorCode)
           .send({ message: NotFoundErrorMessage });
       }
-      return res.status(200).send({ data: card });
+      return res.status(200).send({
+        name: card.name,
+        link: card.link,
+        owner: card.owner,
+        likes: card.likes,
+        createdAt: card.createdAt,
+        _id: card._id,
+      });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -89,7 +96,7 @@ module.exports.likeCard = (req, res) => {
 module.exports.dislikeCard = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
-    { $pull: { likes: req.user._id } }, // убрать _id из массива
+    { $pull: { likes: req.user._id } },
     { new: true, runValidators: true },
   )
     .then((card) => {
@@ -98,7 +105,14 @@ module.exports.dislikeCard = (req, res) => {
           .status(NotFoundErrorCode)
           .send({ message: NotFoundErrorMessage });
       }
-      return res.status(200).send({ data: card });
+      return res.status(200).send({
+        name: card.name,
+        link: card.link,
+        owner: card.owner,
+        likes: card.likes,
+        createdAt: card.createdAt,
+        _id: card._id,
+      });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
