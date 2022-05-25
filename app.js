@@ -16,11 +16,13 @@ app.use((req, res, next) => {
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 mongoose.connect('mongodb://localhost:27017/mestodb');
+
+app.use('/', require('./routes/users'));
+app.use('/', require('./routes/cards'));
+
 app.use('*', (req, res) => {
   res.status(404).send({ message: 'Страница не найдена' });
 });
-app.use('/', require('./routes/users'));
-app.use('/', require('./routes/cards'));
 
 app.listen(PORT, () => {
   console.log(`Сервер запущен на порте: ${PORT}`);
