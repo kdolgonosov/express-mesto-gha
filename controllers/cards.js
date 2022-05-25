@@ -23,23 +23,34 @@ module.exports.deleteCardById = (req, res) => {
     .then((card) => res.status(200).send({ data: card }))
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(CastErrorCode).send({ message: CastErrorMessage });
+        return res.status(CastErrorCode).send({ message: CastErrorMessage });
       }
-      res.status(DefaultErrorCode).send({ message: DefaultErrorMessage });
+      return res
+        .status(DefaultErrorCode)
+        .send({ message: DefaultErrorMessage });
     });
 };
 
 module.exports.createCard = (req, res) => {
   const { name, link } = req.body;
-  Card.create({ name, link })
-    .then((card) => res.status(200).send({ data: card }))
+  Card.create({ name, link, owner: req.user._id })
+    .then((card) => {
+      res.status(200).send({
+        name: card.name,
+        link: card.link,
+        owner: card.owner,
+        likes: card.likes,
+        createdAt: card.createdAt,
+        _id: card._id,
+      });
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res
+        return res
           .status(ValidationErrorCode)
           .send({ message: ValidationErrorMessage });
       }
-      res.status(DefaultErrorCode).send({ message: DefaultErrorCode });
+      return res.status(DefaultErrorCode).send({ message: DefaultErrorCode });
     });
 };
 
@@ -47,19 +58,21 @@ module.exports.likeCard = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
-    { new: true }
+    { new: true },
   )
     .then((card) => res.status(200).send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res
+        return res
           .status(ValidationErrorCode)
           .send({ message: ValidationErrorMessage });
       }
       if (err.name === 'CastError') {
-        res.status(CastErrorCode).send({ message: CastErrorMessage });
+        return res.status(CastErrorCode).send({ message: CastErrorMessage });
       }
-      res.status(DefaultErrorCode).send({ message: DefaultErrorMessage });
+      return res
+        .status(DefaultErrorCode)
+        .send({ message: DefaultErrorMessage });
     });
 };
 
@@ -67,18 +80,20 @@ module.exports.dislikeCard = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } }, // убрать _id из массива
-    { new: true }
+    { new: true },
   )
     .then((card) => res.status(200).send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res
+        return res
           .status(ValidationErrorCode)
           .send({ message: ValidationErrorMessage });
       }
       if (err.name === 'CastError') {
-        res.status(CastErrorCode).send({ message: CastErrorMessage });
+        return res.status(CastErrorCode).send({ message: CastErrorMessage });
       }
-      res.status(DefaultErrorCode).send({ message: DefaultErrorMessage });
+      return res
+        .status(DefaultErrorCode)
+        .send({ message: DefaultErrorMessage });
     });
 };

@@ -4,8 +4,8 @@ const DefaultErrorCode = 500;
 const DefaultErrorMessage = 'Ошибка сервера';
 const ValidationErrorCode = 400;
 const ValidationErrorMessage = 'Некорректные данные';
-const CastErrorCode = 404;
-const CastErrorMessage = 'Пользователь не найден';
+const NotFoundErrorCode = 404;
+const NotFoundErrorMessage = 'Пользователь не найден';
 
 module.exports.getUsers = (req, res) => {
   User.find({})
@@ -20,6 +20,35 @@ module.exports.getUsers = (req, res) => {
 module.exports.getUserById = (req, res) => {
   User.findById(req.params.userId)
     .then((user) => {
+      if (!user) {
+        return res
+          .status(NotFoundErrorCode)
+          .send({ message: NotFoundErrorMessage });
+      }
+      return res.status(200).send({
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+        _id: user._id,
+      });
+    })
+    .catch((err) => {
+      console.log(err.name);
+      if (err.name === 'CastError') {
+        return res
+          .status(ValidationErrorCode)
+          .send({ message: ValidationErrorMessage });
+      }
+      return res
+        .status(DefaultErrorCode)
+        .send({ message: DefaultErrorMessage });
+    });
+};
+
+module.exports.createUser = (req, res) => {
+  const { name, about, avatar } = req.body;
+  User.create({ name, about, avatar })
+    .then((user) => {
       res.status(200).send({
         name: user.name,
         about: user.about,
@@ -28,18 +57,27 @@ module.exports.getUserById = (req, res) => {
       });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(CastErrorCode).send({ message: CastErrorMessage });
+      if (err.name === 'ValidationError') {
+        return res
+          .status(ValidationErrorCode)
+          .send({ message: ValidationErrorMessage });
       }
-      res.status(DefaultErrorCode).send({ message: DefaultErrorMessage });
+      return res
+        .status(DefaultErrorCode)
+        .send({ message: DefaultErrorMessage });
     });
 };
 
-module.exports.createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-  User.create({ name, about, avatar })
+module.exports.updateUserInfo = (req, res) => {
+  const id = req.user._id;
+  const { name, about } = req.body;
+  User.findByIdAndUpdate(
+    id,
+    { name, about },
+    { new: true, runValidators: true },
+  )
     .then((user) => {
-      res.send({
+      res.status(200).send({
         name: user.name,
         about: user.about,
         avatar: user.avatar,
@@ -48,46 +86,46 @@ module.exports.createUser = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res
-          .status(ValidationErrorCode)
-          .send({ message: ValidationErrorMessage });
-      }
-      res.status(DefaultErrorCode).send({ message: DefaultErrorMessage });
-    });
-};
-
-module.exports.updateUserInfo = (req, res) => {
-  const id = req.user._id;
-  const { name, about } = req.body;
-  User.findByIdAndUpdate(id, { name, about })
-    .then((user) => res.send({ data: user }))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res
+        return res
           .status(ValidationErrorCode)
           .send({ message: ValidationErrorMessage });
       }
       if (err.name === 'CastError') {
-        res.status(CastErrorCode).send({ message: CastErrorMessage });
+        return res
+          .status(NotFoundErrorCode)
+          .send({ message: NotFoundErrorMessage });
       }
-      res.status(DefaultErrorCode).send({ message: DefaultErrorMessage });
+      return res
+        .status(DefaultErrorCode)
+        .send({ message: DefaultErrorMessage });
     });
 };
 
 module.exports.updateUserAvatar = (req, res) => {
   const id = req.user._id;
   const { avatar } = req.body;
-  User.findByIdAndUpdate(id, { avatar })
-    .then((user) => res.send({ data: user }))
+  User.findByIdAndUpdate(id, { avatar }, { new: true })
+    .then((user) => {
+      res.status(200).send({
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+        _id: user._id,
+      });
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res
+        return res
           .status(ValidationErrorCode)
           .send({ message: ValidationErrorMessage });
       }
       if (err.name === 'CastError') {
-        res.status(CastErrorCode).send({ message: CastErrorMessage });
+        return res
+          .status(NotFoundErrorCode)
+          .send({ message: NotFoundErrorMessage });
       }
-      res.status(DefaultErrorCode).send({ message: DefaultErrorMessage });
+      return res
+        .status(DefaultErrorCode)
+        .send({ message: DefaultErrorMessage });
     });
 };
