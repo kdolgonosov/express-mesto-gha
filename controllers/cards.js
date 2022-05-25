@@ -19,7 +19,7 @@ module.exports.getCards = (req, res) => {
 };
 
 module.exports.deleteCardById = (req, res) => {
-  Card.findByIdAndRemove(req.params.id, { runValidators: true })
+  Card.findByIdAndRemove(req.params.cardId, { runValidators: true })
     .then((card) => {
       if (!card) {
         return res
@@ -29,14 +29,11 @@ module.exports.deleteCardById = (req, res) => {
       return res.status(200).send({ data: card });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res
+      if (err.name === 'CastError') {
+        res
           .status(ValidationErrorCode)
           .send({ message: ValidationErrorMessage });
       }
-      return res
-        .status(DefaultErrorCode)
-        .send({ message: DefaultErrorMessage });
     });
 };
 
@@ -78,7 +75,7 @@ module.exports.likeCard = (req, res) => {
       return res.status(200).send({ data: card });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'CastError') {
         return res
           .status(ValidationErrorCode)
           .send({ message: ValidationErrorMessage });
@@ -104,15 +101,10 @@ module.exports.dislikeCard = (req, res) => {
       return res.status(200).send({ data: card });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'CastError') {
         return res
           .status(ValidationErrorCode)
           .send({ message: ValidationErrorMessage });
-      }
-      if (err.name === 'CastError') {
-        return res
-          .status(NotFoundErrorCode)
-          .send({ message: NotFoundErrorMessage });
       }
       return res
         .status(DefaultErrorCode)

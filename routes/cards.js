@@ -9,7 +9,7 @@ const {
 
 router.get('/cards', getCards);
 router.post('/cards', createCard);
-router.delete('/cards/:userId', deleteCardById);
+router.delete('/cards/:cardId', deleteCardById);
 router.put('/cards/:cardId/likes', likeCard);
 router.delete('/cards/:cardId/likes', dislikeCard);
 
