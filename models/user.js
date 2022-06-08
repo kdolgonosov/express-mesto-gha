@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
-const { emailRegex } = require('../constants/regex');
+const { urlRegex } = require('../constants/regex');
 
 const userSchema = new mongoose.Schema({
   email: {
@@ -29,7 +29,7 @@ const userSchema = new mongoose.Schema({
   avatar: {
     type: String,
     validate: {
-      validator: (v) => emailRegex.test(v),
+      validator: (v) => urlRegex.test(v),
     },
     default:
       'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
