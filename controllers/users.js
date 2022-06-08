@@ -25,7 +25,7 @@ module.exports.getUsers = (req, res, next) => {
 
 module.exports.getUserById = (req, res, next) => {
   User.findById(req.params.userId)
-    .then(() => {
+    .then((user) => {
       if (!user) {
         return next(new NotFoundError());
       }
@@ -61,7 +61,7 @@ module.exports.createUser = (req, res, next) => {
         }),
       // eslint-disable-next-line function-paren-newline
     )
-    .then(() => {
+    .then((user) => {
       res.status(200).send({
         email: user.email,
         password: user.password,
@@ -90,7 +90,7 @@ module.exports.updateUserInfo = (req, res, next) => {
     { name, about },
     { new: true, runValidators: true },
   )
-    .then(() => {
+    .then((user) => {
       res.status(200).send({
         name: user.name,
         about: user.about,
@@ -129,7 +129,7 @@ module.exports.updateUserAvatar = (req, res, next) => {
   const id = req.user._id;
   const { avatar } = req.body;
   User.findByIdAndUpdate(id, { avatar }, { new: true })
-    .then(() => {
+    .then((user) => {
       res.status(200).send({
         name: user.name,
         about: user.about,
@@ -152,7 +152,7 @@ module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   User.findOne({ email })
     .select('+password')
-    .then(() => {
+    .then((user) => {
       if (!user) {
         return next(new BadTokenError('Неправильные почта или пароль'));
       }
@@ -168,7 +168,7 @@ module.exports.login = (req, res, next) => {
       //   maxAge: 3600000 * 24 * 7,
       //   httpOnly: true,
     })
-    .then(() => {
+    .then((user) => {
       const token = jwt.sign({ _id: user._id }, 'very-stronk-secret', {
         expiresIn: '7d',
       });

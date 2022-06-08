@@ -2,7 +2,7 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const { celebrate, Joi } = require('celebrate');
+const { errors, celebrate, Joi } = require('celebrate');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const { urlRegex } = require('./constants/regex');
@@ -48,6 +48,7 @@ app.use('/', require('./routes/cards'));
 app.use('*', (req, res) => {
   res.status(404).send({ message: 'Страница не найдена' });
 });
+app.use(errors())
 app.use((err, req, res) => {
   const { statusCode, message } = err;
   res.status(statusCode).send({ message });
