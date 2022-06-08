@@ -1,7 +1,6 @@
 // const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const user = require('../models/user');
 const User = require('../models/user');
 const {
   ValidationError, //400
@@ -64,7 +63,6 @@ module.exports.createUser = (req, res, next) => {
     .then((user) => {
       res.status(200).send({
         email: user.email,
-        password: user.password,
         name: user.name,
         about: user.about,
         avatar: user.avatar,
@@ -110,7 +108,7 @@ module.exports.updateUserInfo = (req, res, next) => {
 };
 module.exports.getCurrentUserInfo = (req, res, next) => {
   const id = req.user._id;
-  User.findById(id).then(() => {
+  User.findById(id).then((user) => {
     if (!user) {
       return next(new NotFoundError());
     }

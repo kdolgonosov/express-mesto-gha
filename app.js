@@ -48,10 +48,11 @@ app.use('/', require('./routes/cards'));
 app.use('*', (req, res) => {
   res.status(404).send({ message: 'Страница не найдена' });
 });
-app.use(errors())
-app.use((err, req, res) => {
+app.use(errors());
+app.use((err, req, res, next) => {
   const { statusCode, message } = err;
   res.status(statusCode).send({ message });
+  next();
 });
 
 app.listen(PORT, () => {
