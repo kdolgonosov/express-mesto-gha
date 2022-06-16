@@ -112,6 +112,7 @@ module.exports.getCurrentUserInfo = (req, res, next) => {
     if (!user) {
       return next(new NotFoundError());
     }
+    console.log(user);
     return res.status(200).send({
       email: user.email,
       password: user.password,
