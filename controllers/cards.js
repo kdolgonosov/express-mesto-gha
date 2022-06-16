@@ -1,27 +1,17 @@
 const Card = require('../models/card');
 const {
-  ValidationError, //400
-  BadTokenError, //401
-  NotFoundError, //404
-  NotUniqueEmailError, //409
-  ForbiddenError, //403
-  ServerError, //500
+  ValidationError, // 400
+  NotFoundError, // 404
+  ForbiddenError, // 403
+  ServerError, // 500
 } = require('../errors/errors');
-const DefaultErrorCode = 500;
-const DefaultErrorMessage = 'Ошибка сервера';
-const ValidationErrorCode = 400;
-const ValidationErrorMessage = 'Некорректные данные';
-const NotFoundErrorCode = 404;
-const NotFoundErrorMessage = 'Карточка не найдена';
 
-module.exports.getCards = (req, res) => {
+module.exports.getCards = (req, res, next) => {
   Card.find({})
     .populate('owner')
     .then((cards) => res.status(200).send({ data: cards }))
     .catch(() => {
-      res.status(DefaultErrorCode).send({
-        message: DefaultErrorMessage,
-      });
+      next(new ServerError());
     });
 };
 

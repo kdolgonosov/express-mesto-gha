@@ -1,20 +1,13 @@
-// const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const {
-  ValidationError, //400
-  BadTokenError, //401
-  NotFoundError, //404
-  NotUniqueEmailError, //409
-  ServerError, //500
+  ValidationError, // 400
+  BadTokenError, // 401
+  NotFoundError, // 404
+  NotUniqueEmailError, // 409
+  ServerError, // 500
 } = require('../errors/errors');
-// const DefaultErrorCode = 500;
-// const DefaultErrorMessage = 'Ошибка сервера';
-// const ValidationErrorCode = 400;
-// const ValidationErrorMessage = 'Некорректные данные';
-// const NotFoundErrorCode = 404;
-// const NotFoundErrorMessage = 'Пользователь не найден';
 
 module.exports.getUsers = (req, res, next) => {
   User.find({})
@@ -44,22 +37,18 @@ module.exports.getUserById = (req, res, next) => {
 };
 
 module.exports.createUser = (req, res, next) => {
-  // eslint-disable-next-line object-curly-newline
-  const { email, password, name, about, avatar } = req.body;
+  const {
+    email, password, name, about, avatar,
+  } = req.body;
   bcrypt
     .hash(password, 10)
-    .then(
-      (hash) =>
-        // eslint-disable-next-line implicit-arrow-linebreak
-        User.create({
-          email,
-          password: hash,
-          name,
-          about,
-          avatar,
-        }),
-      // eslint-disable-next-line function-paren-newline
-    )
+    .then((hash) => User.create({
+      email,
+      password: hash,
+      name,
+      about,
+      avatar,
+    }))
     .then((user) => {
       res.status(200).send({
         email: user.email,

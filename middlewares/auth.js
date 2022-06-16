@@ -1,10 +1,6 @@
 const jwt = require('jsonwebtoken');
 const {
-  ValidationError, //400
-  BadTokenError, //401
-  NotFoundError, //404
-  NotUniqueEmailError, //409
-  ServerError, //500
+  BadTokenError, // 401
 } = require('../errors/errors');
 
 module.exports = (req, res, next) => {
