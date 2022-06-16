@@ -1,5 +1,12 @@
 const Card = require('../models/card');
-
+const {
+  ValidationError, //400
+  BadTokenError, //401
+  NotFoundError, //404
+  NotUniqueEmailError, //409
+  ForbiddenError, //403
+  ServerError, //500
+} = require('../errors/errors');
 const DefaultErrorCode = 500;
 const DefaultErrorMessage = 'Ошибка сервера';
 const ValidationErrorCode = 400;
@@ -18,26 +25,26 @@ module.exports.getCards = (req, res) => {
     });
 };
 
-module.exports.deleteCardById = (req, res) => {
+module.exports.deleteCardById = (req, res, next) => {
   Card.findByIdAndRemove(req.params.cardId, { runValidators: true })
     .then((card) => {
       if (!card) {
-        return res
-          .status(NotFoundErrorCode)
-          .send({ message: NotFoundErrorMessage });
+        return next(new NotFoundError());
+      }
+      if (!card.owner.equals(req.user._id)) {
+        return next(new ForbiddenError());
       }
       return res.status(200).send({ data: card });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res
-          .status(ValidationErrorCode)
-          .send({ message: ValidationErrorMessage });
+        return next(new ValidationError());
       }
+      return next(new ServerError());
     });
 };
 
-module.exports.createCard = (req, res) => {
+module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
   Card.create({ name, link, owner: req.user._id })
     .then((card) => {
@@ -52,15 +59,13 @@ module.exports.createCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res
-          .status(ValidationErrorCode)
-          .send({ message: ValidationErrorMessage });
+        return next(new ValidationError());
       }
-      return res.status(DefaultErrorCode).send({ message: DefaultErrorCode });
+      return next(new ServerError());
     });
 };
 
-module.exports.likeCard = (req, res) => {
+module.exports.likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
@@ -68,9 +73,7 @@ module.exports.likeCard = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        return res
-          .status(NotFoundErrorCode)
-          .send({ message: NotFoundErrorMessage });
+        return next(new NotFoundError());
       }
       return res.status(200).send({
         name: card.name,
@@ -83,17 +86,13 @@ module.exports.likeCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res
-          .status(ValidationErrorCode)
-          .send({ message: ValidationErrorMessage });
+        return next(new ValidationError());
       }
-      return res
-        .status(DefaultErrorCode)
-        .send({ message: DefaultErrorMessage });
+      return next(new ServerError());
     });
 };
 
-module.exports.dislikeCard = (req, res) => {
+module.exports.dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
@@ -101,9 +100,7 @@ module.exports.dislikeCard = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        return res
-          .status(NotFoundErrorCode)
-          .send({ message: NotFoundErrorMessage });
+        return next(new NotFoundError());
       }
       return res.status(200).send({
         name: card.name,
@@ -116,12 +113,8 @@ module.exports.dislikeCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res
-          .status(ValidationErrorCode)
-          .send({ message: ValidationErrorMessage });
+        return next(new ValidationError());
       }
-      return res
-        .status(DefaultErrorCode)
-        .send({ message: DefaultErrorMessage });
+      return next(new ServerError());
     });
 };

@@ -29,6 +29,13 @@ class NotUniqueEmailError extends Error {
     this.message = message || 'Пользователь с таким email уже существует';
   }
 }
+class ForbiddenError extends Error {
+  constructor(message) {
+    super(message);
+    this.statusCode = 403;
+    this.message = message || 'Недостаточно прав';
+  }
+}
 class ServerError extends Error {
   constructor(message) {
     super(message);
@@ -42,5 +49,6 @@ module.exports = {
   BadTokenError,
   NotFoundError,
   NotUniqueEmailError,
+  ForbiddenError,
   ServerError,
 };

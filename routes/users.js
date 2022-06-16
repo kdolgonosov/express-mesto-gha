@@ -32,7 +32,16 @@ router.get(
   getCurrentUserInfo,
 );
 router.post('/users', createUser);
-router.patch('/users/me', updateUserInfo);
+router.patch(
+  '/users/me',
+  celebrate({
+    body: Joi.object().keys({
+      name: Joi.string().min(2).max(30),
+      about: Joi.string().min(2).max(30),
+    }),
+  }),
+  updateUserInfo,
+);
 //
 
 //
