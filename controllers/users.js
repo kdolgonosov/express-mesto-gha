@@ -148,29 +148,14 @@ module.exports.updateUserAvatar = (req, res, next) => {
 
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
-  User.findOne({ email })
-    .select('+password')
+
+  return User.findUserByCredentials(email, password)
     .then((user) => {
-      if (!user) {
-        return next(new BadTokenError('Неправильные почта или пароль'));
-      }
-      return bcrypt.compare(password, user.password);
-    })
-    .then((matched) => {
-      if (!matched) {
-        return next(new BadTokenError('Неправильные почта или пароль'));
-      }
-      return user;
-      // const token = jwt.sign({ _id: user._id }, 'secret', { expiresIn: '7d' });
-      // return res.cookie('jwt', token, {
-      //   maxAge: 3600000 * 24 * 7,
-      //   httpOnly: true,
-    })
-    .then((user) => {
-      const token = jwt.sign({ _id: user._id }, 'very-stronk-secret', {
+      const token = jwt.sign({ _id: user._id }, 'super-stronk-secret', {
         expiresIn: '7d',
       });
+
       res.send({ token });
     })
-    .catch(() => next(new BadTokenError()));
+    .catch(() => next(new BadTokenError('Неверные почта или пароль')));
 };
