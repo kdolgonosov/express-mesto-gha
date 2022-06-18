@@ -49,7 +49,7 @@ mongoose.connect('mongodb://localhost:27017/mestodb');
 // app.use('*', (req, res, next) => {
 //   next(new NotFoundError('Страница не найдена'));
 // });
-app.use('*', router);
+app.use(router);
 app.use(errors());
 app.use(errorHandler);
 
