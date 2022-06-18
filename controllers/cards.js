@@ -20,15 +20,16 @@ module.exports.deleteCardById = (req, res, next) => {
       if (!card.owner.equals(req.user._id)) {
         return next(new ForbiddenError());
       }
-      card.remove();
-      return res.send({ data: card });
+      return card.remove()
+        .then(() => res.send({ data: card }));
     })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        return next(new ValidationError());
-      }
-      return next(new ServerError());
-    });
+    // .catch((err) => {
+    //   if (err.name === 'CastError') {
+    //     return next(new ValidationError());
+    //   }
+    //   return next(new ServerError());
+    // });
+    .catch(next);
 };
 
 module.exports.createCard = (req, res, next) => {

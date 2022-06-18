@@ -54,7 +54,7 @@ app.use(errors());
 //   res.status(statusCode).send({ message });
 //   next();
 // });
-app.use(errorHandler)
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Сервер запущен на порте: ${PORT}`);
