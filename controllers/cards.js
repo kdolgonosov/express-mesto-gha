@@ -14,7 +14,7 @@ module.exports.getCards = (req, res, next) => {
 };
 
 module.exports.deleteCardById = (req, res, next) => {
-  Card.findById(req.params.cardId, { runValidators: true })
+  Card.findById(req.params.cardId)
     .orFail(() => next(new NotFoundError()))
     .then((card) => {
       if (!card.owner.equals(req.user._id)) {
