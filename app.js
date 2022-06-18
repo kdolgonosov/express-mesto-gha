@@ -7,7 +7,7 @@ const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const { urlRegex } = require('./constants/regex');
 const NotFoundError = require('./errors/notFoundError');
-// const errorHandler = require('./middlewares/errorHandler');
+const errorHandler = require('./middlewares/errorHandler');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -49,12 +49,12 @@ app.use('*', (req, res, next) => {
   next(new NotFoundError('Страница не найдена'));
 });
 app.use(errors());
-app.use((err, req, res, next) => {
-  const { statusCode = 500, message } = err;
-  res.status(statusCode).send({ message });
-  next();
-});
-// app.use(errorHandler);
+// app.use((err, req, res, next) => {
+//   const { statusCode = 500, message } = err;
+//   res.status(statusCode).send({ message });
+//   next();
+// });
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Сервер запущен на порте: ${PORT}`);
