@@ -23,13 +23,12 @@ module.exports.deleteCardById = (req, res, next) => {
       return card.remove()
         .then(() => res.send({ data: card }));
     })
-    // .catch((err) => {
-    //   if (err.name === 'CastError') {
-    //     return next(new ValidationError());
-    //   }
-    //   return next(new ServerError());
-    // });
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return next(new ValidationError());
+      }
+      return next(new ServerError());
+    });
 };
 
 module.exports.createCard = (req, res, next) => {
