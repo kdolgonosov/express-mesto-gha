@@ -35,18 +35,18 @@ module.exports.getUserById = (req, res, next) => {
 };
 
 module.exports.createUser = (req, res, next) => {
-  const {
-    email, password, name, about, avatar,
-  } = req.body;
+  const { email, password, name, about, avatar } = req.body;
   bcrypt
     .hash(password, 10)
-    .then((hash) => User.create({
-      email,
-      password: hash,
-      name,
-      about,
-      avatar,
-    }))
+    .then((hash) =>
+      User.create({
+        email,
+        password: hash,
+        name,
+        about,
+        avatar,
+      })
+    )
     .then((user) => {
       res.send({
         email: user.email,
@@ -73,7 +73,7 @@ module.exports.updateUserInfo = (req, res, next) => {
   User.findByIdAndUpdate(
     id,
     { name, about },
-    { new: true, runValidators: true },
+    { new: true, runValidators: true }
   )
     .then((user) => {
       res.send({
@@ -133,9 +133,13 @@ module.exports.login = (req, res, next) => {
 
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, 'very-stronk-secret', {
-        expiresIn: '7d',
-      });
+      const token = jwt.sign(
+        { _id: user._id },
+        NODE_ENV === 'production' ? JWT_SECRET : 'very-stronk-secret',
+        {
+          expiresIn: '7d',
+        }
+      );
 
       res.send({ token });
     })
