@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { errors, Joi, celebrate } = require('celebrate');
 const helmet = require('helmet');
+const cors = require('cors');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const { urlRegex } = require('./constants/regex');
@@ -17,6 +18,7 @@ app.use(helmet());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 mongoose.connect('mongodb://localhost:27017/mestodb');
+app.use(cors());
 app.use(requestLogger);
 app.get('/crash-test', () => {
   setTimeout(() => {
