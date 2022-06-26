@@ -21,7 +21,7 @@ module.exports.deleteCardById = (req, res, next) => {
         return next(new ForbiddenError());
       }
       return card.remove()
-        .then(() => res.send({ data: card }));
+        .then(() => res.send(card));
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -62,14 +62,7 @@ module.exports.likeCard = (req, res, next) => {
       if (!card) {
         return next(new NotFoundError());
       }
-      return res.send({
-        name: card.name,
-        link: card.link,
-        owner: card.owner,
-        likes: card.likes,
-        createdAt: card.createdAt,
-        _id: card._id,
-      });
+      return res.send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -89,14 +82,7 @@ module.exports.dislikeCard = (req, res, next) => {
       if (!card) {
         return next(new NotFoundError());
       }
-      return res.send({
-        name: card.name,
-        link: card.link,
-        owner: card.owner,
-        likes: card.likes,
-        createdAt: card.createdAt,
-        _id: card._id,
-      });
+      return res.send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
